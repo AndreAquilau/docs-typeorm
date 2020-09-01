@@ -198,3 +198,53 @@ yarn typeorm migration:generate -- -n createUser
 
 yarn typeorm migration:run
 ~~~
+
+#### Usando getRepository executar processos SGBD 
+##### save().
+O método save já cria e salva diréto na base de dados. 
+~~~ts
+import {getRepository} from 'typeorm';
+import User from '@model/User';
+
+const repository = getRepository(User);
+
+const user = new User();
+user.nome = "Lucas";
+user.sobrenome = "Silva";
+user.idade = 25;
+await repository.save(user);
+~~~
+##### create() and save().
+O método create cria uma instaância da model, porém não salva na base de dados.
+É muito usado quando quer que seja feito alguma validação na model.
+~~~ts
+import {getRepository} from 'typeorm';
+import User from '@model/User';
+
+const repository = getRepository(User);
+//cria um usuário usando a model mas ainda não salva na base de dados.
+const user = repository.create({
+    nome: 'Lucas',
+    sobrenome: 'Silva',
+    idade: 25,
+})
+//salvando usuário na base de dados. já instânciado.
+await repository.save(user);
+~~~
+##### find() and findOne().
+O método find retorna todos os registro da tabela que esta vinculado a model.
+O método findOne retorna apenas um registro da tabela que esta vinculado a model.
+~~~ts
+const repository = getRepository(User);
+
+const allUsers = await repository.find(); // retorna todos os registros
+const user = await repository.findOne({ sobrenome: "Silva", nome: "Lucas" });
+~~~
+##### remove().
+O método remove remove um ou mais registro retornado de uma consulta do tipo find ou findOne.
+~~~ts
+// deletando usuário
+const user = await repository.findOne({ sobrenome: "Silva", nome: "Lucas" });
+
+await repository.remove(user);
+~~~
