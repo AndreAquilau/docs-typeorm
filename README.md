@@ -202,7 +202,7 @@ yarn typeorm migration:run
 ~~~
 
 #### Usando getRepository executar processos SGBD 
-##### save().
+#### save().
 O método save já cria e salva diréto na base de dados. 
 ~~~ts
 import {getRepository} from 'typeorm';
@@ -216,7 +216,7 @@ user.sobrenome = "Silva";
 user.idade = 25;
 await repository.save(user);
 ~~~
-##### create() and save().
+#### create() and save().
 O método create cria uma instância da model, porém não salva na base de dados.
 
 É muito usado quando quer que seja feito alguma validação na model.
@@ -234,7 +234,7 @@ const user = repository.create({
 //salvando usuário na base de dados. já instânciado.
 await repository.save(user);
 ~~~
-##### find() and findOne().
+#### find() and findOne().
 O método find retorna todos os registro da tabela que esta vinculado a model.
 
 O método findOne retorna apenas um registro da tabela que esta vinculado a model.
@@ -244,7 +244,7 @@ const repository = getRepository(User);
 const allUsers = await repository.find(); // retorna todos os registros
 const user = await repository.findOne({ sobrenome: "Silva", nome: "Lucas" });
 ~~~
-##### remove().
+#### remove().
 O método remove remove um ou mais registro retornado de uma consulta do tipo find ou findOne.
 ~~~ts
 // deletando usuário
@@ -285,8 +285,8 @@ export default class Lesson {
 ~~~
 
 #### Eager in many-to-one / one-to-many.
-Quando definimos o "eager" com "true" falos que quando for feito uma consulta irá ser retornado
-daquela model todos os dados da relação entre o relacionamento.
+Quando definimos o "eager" com "true" falamos que quando for feito uma consulta irá ser retornado
+daquela model todos os dados da relação entre o relacionamento, porém só pode ser usado em apenas um dos models.
 ~~~
 @ManyToOne((type) => Usuario, (tarefas) => Tarefa, { eager: true })
 ~~~
