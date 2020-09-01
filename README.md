@@ -124,7 +124,6 @@ yarn typeorm migration:generate -- -n createUser
 --reverte uma magration
 yarn typeorm migration:revert
 
-
 --criar uma model
 yarn typeorm entity:create -- -n User
 ~~~
@@ -187,4 +186,15 @@ export class User {
     upated_date: Date;
 
 }
+~~~
+
+#### Criando migration apartir de uma model
+~~~bash
+--Gerar migrations a partir das model.
+
+yarn typeorm migration:generate -- -n createUser
+
+--Depois só executar a migration pra tabela ser criada.
+
+yarn typeorm migration:run
 ~~~
