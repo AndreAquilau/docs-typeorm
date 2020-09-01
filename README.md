@@ -128,3 +128,63 @@ yarn typeorm migration:revert
 --criar uma model
 yarn typeorm entity:create -- -n User
 ~~~
+
+#### Criando Entity
+~~~bash
+--criar uma model
+
+yarn typeorm entity:create -- -n User
+~~~
+~~~ts
+import {
+  Index,
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+@Index('pkey_id_produto', ['id'], { unique: true })
+@Entity('produtos', { schema: 'public' })
+export class User {
+    @PrimaryGeneratedColumn('uuid')
+    id: number;
+
+    @Column({
+        name: 'nome',
+        type: 'varchar',
+        length: 255,
+        nullable: false
+    })
+    nome: string;
+
+    @Column({
+        name: 'sobrenome',
+        type: 'varchar',
+        length: 255,
+        nullable: false
+    })
+    sobrenome: string;
+    
+    @Column({
+        name: 'idade',
+        type: 'integer',
+        nullable: false
+    })
+    idade: number;
+
+    @CreateDateColumn({
+        name: 'created_At',
+        type: 'timestamp',
+        default: 'now()'
+    })
+    created_At: Date;
+
+    @UpdateDateColumn({
+        name: 'updated_At',
+        type: 'timestamp',
+        default: 'now()'
+    })
+    upated_date: Date;
+
+}
+~~~
