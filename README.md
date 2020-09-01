@@ -49,3 +49,82 @@ TYPEORM_SUBSCRIBERS_DIR = ./src/subscribers/
 //tipo de codificação
 TYPEORM_DRIVER_EXTRA='{"charset": "utf8mb4"}'
 ~~~
+
+#### Configurando ormconfig.js
+~~~ts
+module.exports = {
+  type: process.env.TYPEORM_CONNECTION,
+  url: process.env.DATABASE_URL,
+  schema: process.env.TYPEORM_SCHEMA,
+  synchronize: process.env.TYPEORM_SYNCHRONIZE,
+  logging: process.env.TYPEORM_LOGGING,
+  entities: [process.env.TYPEORM_ENTITIES || 'dist/models/**/*.js'],
+  migrations: [
+    process.env.TYPEORM_MIGRATIONS || 'dist/database/migrations/**/*.js',
+  ],
+  subscribers: [process.env.TYPEORM_SUBSCRIBERS || 'dist/subscriber/**/*.js'],
+  cli: {
+    entitiesDir: process.env.TYPEORM_ENTITIES_DIR,
+    migrationsDir: process.env.TYPEORM_MIGRATIONS_DIR,
+    subscribersDir: process.env.TYPEORM_SUBSCRIBERS_DIR,
+  },
+};
+~~~
+
+#### Carregando Variavel de ambiente do typeorm
+~~~
+...
+  |-- src
+    |-- config
+      |-- env.ts
+~~~
+~~~ts
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+config({
+  path: resolve(__dirname, '..', '..', '.env'),
+});
+~~~
+
+#### Criando conexão com o bando de dados e exportando a conexão
+~~~
+...
+  |-- src
+    |-- database
+      |-- index.ts
+~~~
+~~~ts
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
+
+export default (async () => {
+  return createConnection();
+})();
+~~~
+
+#### Script typeorm no package.json
+~~~json
+"scripts": {
+    "typeorm": "ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config ./ormconfig.js ",
+}
+~~~
+
+### Typeorm CLI
+~~~bash
+--rodar migrations
+yarn typeorm migration:run
+
+--criar uma migration
+yarn typeorm migration:create -- -n createUser
+
+--gerar migrations a partir das model
+yarn typeorm migration:generate -- -n createUser
+
+--reverte uma magration
+yarn typeorm migration:revert
+
+
+--criar uma model
+yarn typeorm entity:create -- -n User
+~~~
