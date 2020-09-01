@@ -143,8 +143,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Index('pkey_id_produto', ['id'], { unique: true })
-@Entity('produtos', { schema: 'public' })
+@Index('pkey_id_user', ['id'], { unique: true })
+@Entity('user', { schema: 'public' })
 export class User {
     @PrimaryGeneratedColumn('uuid')
     id: number;
