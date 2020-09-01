@@ -140,6 +140,8 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  CreateDateColumn
 } from 'typeorm';
 
 @Index('pkey_id_user', ['id'], { unique: true })
@@ -215,7 +217,8 @@ user.idade = 25;
 await repository.save(user);
 ~~~
 ##### create() and save().
-O método create cria uma instaância da model, porém não salva na base de dados.
+O método create cria uma instância da model, porém não salva na base de dados.
+
 É muito usado quando quer que seja feito alguma validação na model.
 ~~~ts
 import {getRepository} from 'typeorm';
@@ -233,6 +236,7 @@ await repository.save(user);
 ~~~
 ##### find() and findOne().
 O método find retorna todos os registro da tabela que esta vinculado a model.
+
 O método findOne retorna apenas um registro da tabela que esta vinculado a model.
 ~~~ts
 const repository = getRepository(User);
@@ -248,3 +252,115 @@ const user = await repository.findOne({ sobrenome: "Silva", nome: "Lucas" });
 
 await repository.remove(user);
 ~~~
+
+#### Relacionamento
+#### Criando relacinameto one-to-one / one-to-one
+~~~ts
+import Lesson from './Lesson';
+
+@Entity('content')
+export default class Content {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @OneToOne((type) => Lesson, (content) => Content) //eslint-disable-line
+  @JoinColumn([{ name: 'fk_id_lesson', referencedColumnName: 'id' }])
+  lesson: Lesson;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+import Content from './Content';
+
+@Entity('lesson')
+export default class Lesson {
+  @PrimaryGeneratedColumn('uuid')
+  id: number;
+
+  @OneToOne((type) => Content, (lesson) => Lesson) //eslint-disable-line
+  @JoinColumn([{ name: 'fk_id_content', referencedColumnName: 'id' }])
+  content: Content;
+
+}
+~~~
+
+#### Eager in many-to-one / one-to-many.
+Quando definimos o "eager" com "true" falos que quando for feito uma consulta irá ser retornado
+daquela model todos os dados da relação entre o relacionamento.
+~~~
+@ManyToOne((type) => Usuario, (tarefas) => Tarefa, { eager: true })
+~~~
+
+#### Criando relacionamento many-to-one / one-to-many
+~~~ts
+import Usuario from './Usuario';
+
+@Entity('tarefa')
+export default class Tarefa {
+  @PrimaryGeneratedColumn('uuid')
+  private id: string;
+
+  @ManyToOne((type) => Usuario, (tarefas) => Tarefa, { eager: true })
+  @JoinColumn([{ name: 'fk_id_usuario', referencedColumnName: 'id' }])
+  usuario: Usuario;
+
+}
+
+////////////////////////////////////////////////////////////////
+
+import Tarefa from './Tarefa';
+
+@Entity('usuario')
+export default class Usuario {
+  @PrimaryGeneratedColumn('uuid')
+  private id: string;
+
+  @OneToMany((type) => Tarefa, (usuario) => Usuario)
+  @JoinColumn([{ name: 'fk_id_tarefas', referencedColumnName: 'id' }])
+  tarefas: Tarefa[];
+
+}
+~~~
+
+#### Criando relacionamento many-to-many
+Em uma relação de muito para muito só e necessário criar o relacionamento em apenas unas das models
+~~~ts
+    @ManyToMany(type => Category)
+    @JoinTable()
+    categories: Category[];
+~~~
+
+#### AfterLoad campo virtual gerados após o carregamento da model
+~~~ts
+@Entity('photos')
+export default class Photos {
+  url: string;
+
+  @AfterLoad()
+  getUrl() {
+    return (this.url = `${process.env.BASE_URL}:${process.env.PORT}/${process.env.FILES_STATICS_IMAGES}/${this.filename}`);
+  }
+}
+~~~
+
+#### BeforeInsert método executado antes de salva no banco de dados
+~~~ts
+@Entity('users')
+export default class User {
+
+  @Column({ name: 'password', nullable: false, type: 'varchar', length: 255 })
+  @IsEmpty({ message: 'Senha não pode ser vazio' })
+  password_hash: string;
+
+  password: string | null;
+
+  @BeforeInsert()
+  async encryptPassword() {
+    console.log(this);
+    this.password_hash = await bcrypt.hash(this.password, 8);
+    this.password = null;
+  }
+}
+~~~
+
+
